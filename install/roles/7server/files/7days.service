@@ -1,0 +1,13 @@
+[Unit]
+Description=7days Service
+After=network.target
+
+[Service]
+Type=simple
+User=7days
+ExecStart=/home/7days/server/startserver.sh -configfile=serverconfig.xml -s
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,10 @@
+---
+#
+# Ansible playbook to install 7daystodie
+#
+
+- hosts: 7days
+  remote_user: root
+  roles:
+    - { role: 7server }
+

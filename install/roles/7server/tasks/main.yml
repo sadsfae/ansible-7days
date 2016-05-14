@@ -1,0 +1,250 @@
+---
+#
+# Install/run 7daystodie server
+#
+
+- name: Gathering user info
+  local_action: command whoami
+  register: youruser
+
+- name: Setup 7days user
+  user: name=7days
+          shell=/sbin/nologin generate_ssh_key=yes
+          ssh_key_bits=2048
+          ssh_key_file=.ssh/id_rsa
+
+- authorized_key:
+    user=7days
+    key="{{ lookup('file', '/home/"{{youruser.stdout}}"/.ssh/id_rsa.pub') }}"
+    manage_dir=yes
+  ignore_errors: true
+
+- name: Install dependencies for SteamCMD
+  yum: name={{ item }} state=present
+  become: true
+  with_items:
+    - glibc.i686
+    - mesa-libGLU
+    - libXcursor
+    - libXrandr
+    - libstdc++.i686
+
+- name: Setup SteamCMD path
+  file:
+    path=/home/7days/steamcmd
+    state=directory
+    owner=7days
+    recurse=yes
+    mode=755
+
+- name: Setup 7days server path
+  file:
+    path=/home/7days/server
+    state=directory
+    owner=7days
+    recurse=yes
+    mode=0755
+
+- name: Download SteamCMD
+  get_url:
+    url=https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz dest=/home/7days/steamcmd
+
+- name: Install/update SteamCMD
+  unarchive:
+    src=//home/7days/steamcmd/steamcmd_linux.tar.gz
+    dest=/home/7days/steamcmd/
+    copy=no
+    owner=7days
+    mode=0755
+  ignore_errors: true
+
+- name: Assign 7days server port values
+  set_fact:
+    seven_port: 26900
+    data_port: 25000
+    when: ((seven_port is none) and (data_port is none))
+
+- name: Configure server variables
+  set_fact:
+    server_name: "{{ansible_hostname}} 7Days to Die Server"
+    server_pass: changeme
+    when: ((server_name is none) and (server_pass is none))
+
+# deploy 7days to die configs
+- name: Generate 7days server config
+  template:
+    src=serverconfig.xml.j2
+    dest=/home/7days/server/serverconfig.xml
+    owner=7days
+    group=7days
+    mode=0755
+  become: true
+
+# Setup 7days to die system service
+- name: Install 7days systemd unit file
+  copy:
+    src=7days.service
+    dest=/etc/systemd/system/7days.service
+    owner=root
+    group=root
+    mode=0644
+    force=no
+  become: true
+
+# Copy startup script
+- name: Copy startup Script
+  copy:
+    src=startserver.sh
+    dest=/home/7days/server/startserver.sh
+    owner=7days
+    group=7days
+    mode=0755
+    force=no
+  ignore_errors: true
+  become: true
+
+- name: Make update script
+  template:
+    src=update_server.txt.j2
+    dest=/home/7days/steamcmd/update_server.txt
+    owner=7days
+    group=7days
+    mode=0755
+    force=yes
+  ignore_errors: true
+  become: true
+
+# 1) use firewall-cmd if firewalld is utilized
+# 2) insert iptables rule if iptables is used
+
+# Firewalld
+- name: Determine if firewalld is in use
+  shell: systemctl is-enabled firewalld.service | egrep -qv 'masked|disabled'
+  ignore_errors: true
+  register: firewalld_in_use
+
+- name: Determine if firewalld is active
+  shell: systemctl is-active firewalld.service | grep -vq inactive
+  ignore_errors: true
+  register: firewalld_is_active
+
+- name: Determine if UDP/{{seven_port}} is already active
+  shell: firewall-cmd --list-ports | egrep -q "^{{seven_port}}/udp"
+  ignore_errors: true
+  register: firewalld_udp1_exists
+
+# add firewall rule via firewall-cmd
+- name: Add firewall rule for UDP/{{seven_port}} (firewalld)
+  command: "{{ item }}"
+  with_items:
+    - firewall-cmd --zone=public --add-port={{seven_port}}/udp --permanent
+    - firewall-cmd --reload
+  ignore_errors: true
+  become: true
+  when: firewalld_in_use.rc == 0 and firewalld_is_active.rc == 0 and firewalld_udp1_exists.rc != 0
+
+# iptables-services
+- name: check firewall rules for UDP/{{seven_port}} (iptables-services)
+  shell: grep "dport {{seven_port}} \-j ACCEPT" /etc/sysconfig/iptables | wc -l
+  ignore_errors: true
+  register: iptables_udp1_exists
+  failed_when: iptables_udp1_exists == 127
+
+- name: Add firewall rule for UDP/{{seven_port}} (iptables-services)
+  lineinfile:
+    dest: /etc/sysconfig/iptables
+    line: '-A INPUT -p udp -m udp --dport {{seven_port}} -j ACCEPT'
+    regexp: '^INPUT -i lo -j ACCEPT'
+    insertbefore: '-A INPUT -i lo -j ACCEPT'
+    backup: yes
+  when: firewalld_in_use.rc != 0 and firewalld_is_active.rc != 0 and iptables_udp1_exists.stdout|int == 0
+  register: iptables_needs_restart
+
+- name: Restart iptables-services for udp/{{seven_port}} (iptables-services)
+  shell: systemctl restart iptables.service
+  ignore_errors: true
+  when: iptables_needs_restart != 0 and firewalld_in_use.rc != 0 and firewalld_is_active.rc != 0
+
+# Firewalld
+- name: Determine if firewalld is in use
+  shell: systemctl is-enabled firewalld.service | egrep -qv 'masked|disabled'
+  ignore_errors: true
+  register: firewalld_in_use
+
+- name: Determine if firewalld is active
+  shell: systemctl is-active firewalld.service | grep -vq inactive
+  ignore_errors: true
+  register: firewalld_is_active
+
+- name: Determine if udp/{{data_port}} is already active
+  shell: firewall-cmd --list-ports | egrep -q "^{{data_port}}/udp"
+  ignore_errors: true
+  register: firewalld_udp2_exists
+
+# add firewall rule via firewall-cmd
+- name: Add firewall rule for udp/{{data_port}} (firewalld)
+  command: "{{ item }}"
+  with_items:
+    - firewall-cmd --zone=public --add-port={{data_port}}/udp --permanent
+    - firewall-cmd --reload
+  ignore_errors: true
+  become: true
+  when: firewalld_in_use.rc == 0 and firewalld_is_active.rc == 0 and firewalld_udp2_exists.rc != 0
+
+# iptables-services
+- name: check firewall rules for udp/{{data_port}} (iptables-services)
+  shell: grep "dport {{data_port}} \-j ACCEPT" /etc/sysconfig/iptables | wc -l
+  ignore_errors: true
+  register: iptables_udp2_exists
+  failed_when: iptables_udp2_exists == 127
+
+- name: Add firewall rule for udp/{{data_port}} (iptables-services)
+  lineinfile:
+    dest: /etc/sysconfig/iptables
+    line: '-A INPUT -p udp -m udp --dport {{data_port}} -j ACCEPT'
+    regexp: '^INPUT -i lo -j ACCEPT'
+    insertbefore: '-A INPUT -i lo -j ACCEPT'
+    backup: yes
+  when: firewalld_in_use.rc != 0 and firewalld_is_active.rc != 0 and iptables_udp2_exists.stdout|int == 0
+  register: iptables_needs_restart
+
+- name: Restart iptables-services for udp/{{data_port}} (iptables-services)
+  shell: systemctl restart iptables.service
+  ignore_errors: true
+  when: iptables_needs_restart != 0 and firewalld_in_use.rc != 0 and firewalld_is_active.rc != 0
+
+- name: Check group_vars/all.yml
+  fail:
+    msg="Edit steam_user and steam_pass in group_vars/all.yml for Steam, re-run Ansible **"
+  when: ((steam_user is none) and (steam_pass is none))
+
+- name: Trigger Steamguard email
+  debug: msg="*** Get ready to check steam email, enter code in install/group_vars/all.yml and re-run Ansible ***"
+  when: (steam_code is none)
+# this will register true if it is not skipped, so we can compare conditionals against it
+  register: steamguard_auth_needed
+
+# we use a dummy 5-char variable here to force steamcmd to exit after downloading
+- name: Downloading SteamCMD public game data
+  command: "su -c '/home/7days/steamcmd/steamcmd.sh +force_install_dir /home/7days/server +set_steam_guard_code JJJJJ +login {{steam_user}} {{steam_pass}} +app_update 294420 validate +quit' -s /bin/bash 7days"
+  when: (steam_code is none)
+  ignore_errors: true
+
+# only download private data when we have entered steam code
+- name: Downloading SteamCMD private game data
+  command: "su -c '/home/7days/steamcmd/steamcmd.sh +force_install_dir /home/7days/server +set_steam_guard_code {{steam_code}} +login {{steam_user}} {{steam_pass}} +app_update 294420 validate +quit' -s /bin/bash 7days"
+  ignore_errors: true
+  when: (steamguard_auth_needed.skipped == True)
+
+- name: Enter Steam code
+  debug: msg="** 1) Check Email and enter steam code in group_vars/all.yml run Ansible again **"
+  when: (steam_code is none)
+
+- name: Enable 7Days service
+  command: systemctl restart 7days.service
+  ignore_errors: true
+  when: (steamguard_auth_needed.skipped == True)
+
+- name: Enable 7Days service
+  service: name=7days state=started enabled=true
+  ignore_errors: true
