@@ -63,7 +63,7 @@
     seven_port: 26900
     data_port: 25000
     admin_port: 8080
-    when: ((seven_port is none) and (data_port is none))
+    when: ((seven_port is none) and (data_port is none) and (admin_port is none))
 
 - name: Configure server variables
   set_fact:
@@ -79,6 +79,7 @@
     owner=7days
     group=7days
     mode=0755
+    force=yes
   become: true
 
 # Setup 7days to die system service
@@ -291,7 +292,7 @@
   debug: msg="** 1) Check Email and enter steam code in group_vars/all.yml run Ansible again **"
   when: (steam_code is none)
 
-- name: Enable 7Days service
+- name: Restart 7Days service
   command: systemctl restart 7days.service
   ignore_errors: true
   when: (steamguard_auth_needed.skipped == True)
