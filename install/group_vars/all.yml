@@ -1,12 +1,13 @@
 ---
 # these are mandatory for steam auth
-steam_user:
-steam_pass:
+steam_user: sadsfae
+steam_pass: lemmeiny0
 # you'll be prompted to fill in this after
 # the first ansible run
-steam_code:
+steam_code: NN886
 
 # these are optional
 seven_port:
 data_port:
+telnet_port:
 server_name:

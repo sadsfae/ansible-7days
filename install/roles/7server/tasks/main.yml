@@ -62,6 +62,7 @@
   set_fact:
     seven_port: 26900
     data_port: 25000
+    telnet_port: 8081
     when: ((seven_port is none) and (data_port is none))
 
 - name: Configure server variables
@@ -212,6 +213,56 @@
   shell: systemctl restart iptables.service
   ignore_errors: true
   when: iptables_needs_restart != 0 and firewalld_in_use.rc != 0 and firewalld_is_active.rc != 0
+
+# Firewall for TCP/{{telnet_port}}
+- name: Determine if firewalld is in use
+  shell: systemctl is-enabled firewalld.service | egrep -qv 'masked|disabled'
+  ignore_errors: true
+  register: firewalld_in_use
+
+- name: Determine if firewalld is active
+  shell: systemctl is-active firewalld.service | grep -vq inactive
+  ignore_errors: true
+  register: firewalld_is_active
+
+- name: Determine if tcp/{{telnet_port}} is already active
+  shell: firewall-cmd --list-ports | egrep -q "^{{telnet_port}}/tcp"
+  ignore_errors: true
+  register: firewalld_tcp1_exists
+
+# add firewall rule via firewall-cmd
+- name: Add firewall rule for tcp/{{telnet_port}} (firewalld)
+  command: "{{ item }}"
+  with_items:
+    - firewall-cmd --zone=public --add-port={{telnet_port}}/tcp --permanent
+    - firewall-cmd --reload
+  ignore_errors: true
+  become: true
+  when: firewalld_in_use.rc == 0 and firewalld_is_active.rc == 0 and firewalld_tcp1_exists.rc != 0
+
+# iptables-services
+- name: check firewall rules for tcp/{{telnet_port}} (iptables-services)
+  shell: grep "dport {{telnet_port}} \-j ACCEPT" /etc/sysconfig/iptables | wc -l
+  ignore_errors: true
+  register: iptables_tcp1_exists
+  failed_when: iptables_tcp1_exists == 127
+
+- name: Add firewall rule for tcp/{{telnet_port}} (iptables-services)
+  lineinfile:
+    dest: /etc/sysconfig/iptables
+    line: '-A INPUT -p tcp -m tcp --dport {{telnet_port}} -j ACCEPT'
+    regexp: '^INPUT -i lo -j ACCEPT'
+    insertbefore: '-A INPUT -i lo -j ACCEPT'
+    backup: yes
+  when: firewalld_in_use.rc != 0 and firewalld_is_active.rc != 0 and iptables_tcp1_exists.stdout|int == 0
+  register: iptables_needs_restart
+
+- name: Restart iptables-services for tcp/{{telnet_port}} (iptables-services)
+  shell: systemctl restart iptables.service
+  ignore_errors: true
+  when: iptables_needs_restart != 0 and firewalld_in_use.rc != 0 and firewalld_is_active.rc != 0
+
+# end firewall settings #
 
 - name: Check group_vars/all.yml
   fail:
