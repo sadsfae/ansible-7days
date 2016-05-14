@@ -59,7 +59,6 @@ ansible-playbook -i hosts install/7days.yml
 ├── image
 │   └── steam_auth.png
 └── install
-    ├── 7days.retry
     ├── 7days.yml
     ├── group_vars
     │   └── all.yml
