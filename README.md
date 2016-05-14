@@ -62,16 +62,14 @@ ansible-playbook -i hosts install/7days.yml
     ├── 7days.yml
     ├── group_vars
     │   └── all.yml
-    ├── roles
-    │   └── 7server
-    │       ├── files
-    │       │   ├── 7days.service
-    │       │   └── startserver.sh
-    │       ├── tasks
-    │       │   └── main.yml
-    │       └── templates
-    │           ├── serverconfig.xml.j2
-    │           └── update_server.txt.j2
-    └── vars
-        └── all.yml
+    └── roles
+        └── 7server
+            ├── files
+            │   ├── 7days.service
+            │   └── startserver.sh
+            ├── tasks
+            │   └── main.yml
+            └── templates
+                ├── serverconfig.xml.j2
+                └── update_server.txt.j2
 ```
