@@ -25,8 +25,8 @@ sed -i 's/host-01/7daystodieserver/' hosts
 ```
    - Add your Steam ID and password here:
 ```
-sed -i 's/steam_user:/steam_user: youruser/' install/group_vars/all.yml
-sed -i 's/steam_pass:/steam_pass: yourpass/' install/group_vars/all.yml
+sed -i 's/steam_user:/steam_user: **youruser**/' install/group_vars/all.yml
+sed -i 's/steam_pass:/steam_pass: **yourpass**/' install/group_vars/all.yml
 ```
    - Run the playbook
 ```
@@ -39,7 +39,7 @@ ansible-playbook -i hosts install/7days.xml
 
    - Add the Steamguard code sent via email 
 ```
-sed -i 's/steam_user:/steam_user: youruser/' install/group_vars/all.yml
+sed -i 's/steam_code:/steam_code: **steamcode**/' install/group_vars/all.yml
 ```
    - Run Ansible one more time
 ```
