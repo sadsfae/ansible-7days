@@ -34,7 +34,8 @@ ansible-playbook -i hosts install/7days.xml
 ```
    - The first playbook run will download and setup SteamCMD
    - It will also trigger steamguard, so you'll need to check your email
-![ELK](/image/steam_auth.png?raw=true "Enter this code in install/group_vars/all.yml.")
+
+![7Days](/image/steam_auth.png?raw=true "Enter this code in install/group_vars/all.yml.")
 
    - Add the Steamguard code sent via email 
 ```
