@@ -9,7 +9,7 @@
   <property name="ServerWebsiteURL" 		value=""/>					<!-- Website URL for the server -->
 
   <property name="GameWorld" 				value="Navezgane"/>			<!-- Navezgane, Random Gen -->
-  <property name="GameName" 				value="Irondungv14-Navezgane"/>			<!-- Whatever you want the game name to be THIS CONTROLS THE RANDOM GENERATION SEED -->
+  <property name="GameName" 				value="AnsibleDeployedNavezgane"/>			<!-- Whatever you want the game name to be THIS CONTROLS THE RANDOM GENERATION SEED -->
   <property name="GameDifficulty" 			value="2"/>  				<!-- 0 - 5, 0=easiest, 5=hardest -->
   <property name="GameMode"					value="GameModeSurvivalMP"/>	<!-- GameModeSurvivalMP, GameModeSurvivalSP (MP has land protection) -->
 
@@ -23,8 +23,8 @@
   <property name="PlayerSafeZoneLevel"	    value="5" />				<!-- If a player is less or equal this level he will create a safe zone (no enemies) when spawned -->
   <property name="PlayerSafeZoneHours"	    value="5" />				<!-- Hours in world time this safe zone exists -->
 
-  <property name="ControlPanelEnabled"	 	value="false"/>				<!-- Enable/Disable the control panel -->
-  <property name="ControlPanelPort" 		value="8080"/>				<!-- Port of the control panel webpage -->
+  <property name="ControlPanelEnabled"	 	value="true"/>				<!-- Enable/Disable the control panel -->
+  <property name="ControlPanelPort" 		value="{{admin_port}}"/>				<!-- Port of the control panel webpage -->
   <property name="ControlPanelPassword" 	value="CHANGEME"/>			<!-- Password to gain entry to the control panel -->
 
   <property name="TelnetEnabled"	 		value="true"/>				<!-- Enable/Disable the telnet -->
