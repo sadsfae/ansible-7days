@@ -9,5 +9,5 @@ steam_code: NN886
 # these are optional
 seven_port:
 data_port:
-telnet_port:
+admin_port:
 server_name:
