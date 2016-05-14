@@ -2,6 +2,8 @@ ansible-7days
 =============
 Install and configure 7 Days to Die gameserver with Ansible
 
+![7Days](/image/7days_icon.png?raw=true "This is a really fun game")
+
 **What does it do?**
    - Automate deployment of 7 Days to Die Server
      * Downloads and sets up SteamCMD
@@ -73,3 +75,10 @@ ansible-playbook -i hosts install/7days.yml
                 ├── serverconfig.xml.j2
                 └── update_server.txt.j2
 ```
+
+**7 Days to Die Live Trailer**
+
+
+[![Ansible Elk](http://img.youtube.com/vi/tnKLwfAgZjI/0.jpg)](http://www.youtube.com/watch?v=tnKLwfAgZjI "7 Days to Die Live Trailer")
+
+
