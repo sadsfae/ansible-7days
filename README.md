@@ -15,7 +15,7 @@ Install and configure 7 Days to Die gameserver with Ansible
    - RHEL7 or CentOS7+ server/client with no modifications
      - Fedora 23 or higher needs to have ```yum python2 python2-dnf libselinux-python``` packages.
        * You can run this against Fedora clients prior to running Ansible:
-       - ```ansible fedora-client-01 -u root -m shell -i hosts -a "dnf install yum python2 libsemanage-python python2-dnf -y"```
+       - ```ansible 7days -u root -m shell -i hosts -a "dnf install yum python2 libsemanage-python python2-dnf -y"```
    - Deployment tested on Ansible 1.9.4 and 2.0.2
 
 **7 Days Server Instructions**
