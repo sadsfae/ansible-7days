@@ -28,6 +28,7 @@
     - libXcursor
     - libXrandr
     - libstdc++.i686
+    - tar
 
 - name: Setup SteamCMD path
   file:
