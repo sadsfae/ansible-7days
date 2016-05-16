@@ -119,16 +119,19 @@
   shell: systemctl is-enabled firewalld.service | egrep -qv 'masked|disabled'
   ignore_errors: true
   register: firewalld_in_use
+  no_log: True
 
 - name: Determine if firewalld is active
   shell: systemctl is-active firewalld.service | grep -vq inactive
   ignore_errors: true
   register: firewalld_is_active
+  no_log: True
 
 - name: Determine if UDP/{{seven_port}} is already active
   shell: firewall-cmd --list-ports | egrep -q "^{{seven_port}}/udp"
   ignore_errors: true
   register: firewalld_udp1_exists
+  no_log: True
 
 # add firewall rule via firewall-cmd
 - name: Add firewall rule for UDP/{{seven_port}} (firewalld)
@@ -146,6 +149,7 @@
   ignore_errors: true
   register: iptables_udp1_exists
   failed_when: iptables_udp1_exists == 127
+  no_log: True
 
 - name: Add firewall rule for UDP/{{seven_port}} (iptables-services)
   lineinfile:
@@ -167,16 +171,19 @@
   shell: systemctl is-enabled firewalld.service | egrep -qv 'masked|disabled'
   ignore_errors: true
   register: firewalld_in_use
+  no_log: True
 
 - name: Determine if firewalld is active
   shell: systemctl is-active firewalld.service | grep -vq inactive
   ignore_errors: true
   register: firewalld_is_active
+  no_log: True
 
 - name: Determine if udp/{{data_port}} is already active
   shell: firewall-cmd --list-ports | egrep -q "^{{data_port}}/udp"
   ignore_errors: true
   register: firewalld_udp2_exists
+  no_log: True
 
 # add firewall rule via firewall-cmd
 - name: Add firewall rule for udp/{{data_port}} (firewalld)
@@ -194,6 +201,7 @@
   ignore_errors: true
   register: iptables_udp2_exists
   failed_when: iptables_udp2_exists == 127
+  no_log: True
 
 - name: Add firewall rule for udp/{{data_port}} (iptables-services)
   lineinfile:
@@ -215,16 +223,19 @@
   shell: systemctl is-enabled firewalld.service | egrep -qv 'masked|disabled'
   ignore_errors: true
   register: firewalld_in_use
+  no_log: True
 
 - name: Determine if firewalld is active
   shell: systemctl is-active firewalld.service | grep -vq inactive
   ignore_errors: true
   register: firewalld_is_active
+  no_log: True
 
 - name: Determine if tcp/{{admin_port}} is already active
   shell: firewall-cmd --list-ports | egrep -q "^{{admin_port}}/tcp"
   ignore_errors: true
   register: firewalld_tcp1_exists
+  no_log: True
 
 # add firewall rule via firewall-cmd
 - name: Add firewall rule for tcp/{{admin_port}} (firewalld)
@@ -242,6 +253,7 @@
   ignore_errors: true
   register: iptables_tcp1_exists
   failed_when: iptables_tcp1_exists == 127
+  no_log: True
 
 - name: Add firewall rule for tcp/{{admin_port}} (iptables-services)
   lineinfile:
