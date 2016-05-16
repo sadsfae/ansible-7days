@@ -271,7 +271,6 @@
 - name: Restart 7Days service
   command: systemctl restart 7days.service
   ignore_errors: true
-  register: testybutt
 
 - name: Enable 7Days service
   service: name=7days state=started enabled=true
