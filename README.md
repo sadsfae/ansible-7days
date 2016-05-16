@@ -26,13 +26,13 @@ sed -i 's/host-01/7daystodieserver/' hosts
 ```
    - Optionally edit server name, port or other variables here:
 ```
-vi nstall/group_vars/all.yml
+vi install/group_vars/all.yml
 ```
    - Run the playbook
 ```
 ansible-playbook -i hosts install/7days.xml
 ```
-   * On subsequent runs Ansible will simply update SteamCMD, 7 days assets and
+   * On subsequent runs Ansible will simply update SteamCMD, 7days assets and
      restart the 7days systemd service.
 
 **To Do**
@@ -44,21 +44,22 @@ ansible-playbook -i hosts install/7days.xml
 ```
 ├── hosts
 ├── image
-│   └── steam_auth.png
-└── install
-    ├── 7days.yml
-    ├── group_vars
-    │   └── all.yml
-    └── roles
-        └── 7server
-            ├── files
-            │   ├── 7days.service
-            │   └── startserver.sh
-            ├── tasks
-            │   └── main.yml
-            └── templates
-                ├── serverconfig.xml.j2
-                └── update_server.txt.j2
+│   └── 7days_icon.png
+├── install
+│   ├── 7days.retry
+│   ├── 7days.yml
+│   ├── group_vars
+│   │   └── all.yml
+│   └── roles
+│       └── 7server
+│           ├── files
+│           │   ├── 7days.service
+│           │   └── startserver.sh
+│           ├── tasks
+│           │   └── main.yml
+│           └── templates
+│               └── serverconfig.xml.j2
+└── LICENSE
 ```
 
 **7 Days to Die Live Trailer**
