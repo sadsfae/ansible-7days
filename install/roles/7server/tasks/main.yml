@@ -52,7 +52,7 @@
 
 - name: Install/update SteamCMD
   unarchive:
-    src=//home/7days/steamcmd/steamcmd_linux.tar.gz
+    src=/home/7days/steamcmd/steamcmd_linux.tar.gz
     dest=/home/7days/steamcmd/
     copy=no
     owner=7days
@@ -66,11 +66,15 @@
     admin_port: 8080
     when: ((seven_port is none) and (data_port is none) and (admin_port is none))
 
-- name: Configure server variables
+- name: Configure server name
   set_fact:
     server_name: "{{ansible_hostname}} 7Days to Die Server"
-    server_pass: changeme
     when: (server_name is none)
+
+- name: Configure server password
+  set_fact:
+    server_pass: changeme
+    when: (server_pass is none)
 
 # deploy 7days to die configs
 - name: Generate 7days server config
@@ -267,6 +271,7 @@
 - name: Restart 7Days service
   command: systemctl restart 7days.service
   ignore_errors: true
+  register: testybutt
 
 - name: Enable 7Days service
   service: name=7days state=started enabled=true
