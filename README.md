@@ -7,7 +7,6 @@ Install and configure 7 Days to Die gameserver with Ansible
 **What does it do?**
    - Automate deployment of 7 Days to Die Server
      * Downloads and sets up SteamCMD
-     * Authorizes via Steamguard to pull down 7 Days to Die assets
      * Drops in templated server configs, startup script
      * Installs 7 Days to Die Systemd services for management
 
@@ -25,27 +24,13 @@ git clone https://github.com/sadsfae/ansible-7days
 cd ansible-7days
 sed -i 's/host-01/7daystodieserver/' hosts
 ```
-   - Add your Steam ID and password here:
+   - Optionally edit server name, port or other variables here:
 ```
-sed -i 's/steam_user:/steam_user: YOURUSER/' install/group_vars/all.yml
-sed -i 's/steam_pass:/steam_pass: YOURPASS/' install/group_vars/all.yml
+vi nstall/group_vars/all.yml
 ```
    - Run the playbook
 ```
 ansible-playbook -i hosts install/7days.xml
-```
-   - The first playbook run will download and setup SteamCMD
-   - It will also trigger steamguard, so you'll need to check your email
-
-![7Days](/image/steam_auth.png?raw=true "Enter this code in install/group_vars/all.yml.")
-
-   - Add the Steamguard code sent via email 
-```
-sed -i 's/steam_code:/steam_code: STEAMCODE/' install/group_vars/all.yml
-```
-   - Run Ansible one more time
-```
-ansible-playbook -i hosts install/7days.yml
 ```
    * On subsequent runs Ansible will simply update SteamCMD, 7 days assets and
      restart the 7days systemd service.

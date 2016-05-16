@@ -70,7 +70,7 @@
   set_fact:
     server_name: "{{ansible_hostname}} 7Days to Die Server"
     server_pass: changeme
-    when: ((server_name is none) and (server_pass is none))
+    when: (server_name is none)
 
 # deploy 7days to die configs
 - name: Generate 7days server config
@@ -106,17 +106,7 @@
   ignore_errors: true
   become: true
 
-- name: Make update script
-  template:
-    src=update_server.txt.j2
-    dest=/home/7days/steamcmd/update_server.txt
-    owner=7days
-    group=7days
-    mode=0755
-    force=yes
-  ignore_errors: true
-  become: true
-
+##### begin firewall settings #####
 # 1) use firewall-cmd if firewalld is utilized
 # 2) insert iptables rule if iptables is used
 
@@ -264,39 +254,19 @@
   ignore_errors: true
   when: iptables_needs_restart != 0 and firewalld_in_use.rc != 0 and firewalld_is_active.rc != 0
 
-# end firewall settings #
+##### end firewall settings #####
 
-- name: Check group_vars/all.yml
-  fail:
-    msg="Edit steam_user and steam_pass in group_vars/all.yml for Steam, re-run Ansible **"
-  when: ((steam_user is none) and (steam_pass is none))
-
-- name: Trigger Steamguard email
-  debug: msg="*** Get ready to check steam email, enter code in install/group_vars/all.yml and re-run Ansible ***"
-  when: (steam_code is none)
-# this will register true if it is not skipped, so we can compare conditionals against it
-  register: steamguard_auth_needed
-
-# we use a dummy 5-char variable here to force steamcmd to exit after downloading
-- name: Downloading SteamCMD public game data
-  command: "su -c '/home/7days/steamcmd/steamcmd.sh +force_install_dir /home/7days/server +set_steam_guard_code JJJJJ +login {{steam_user}} {{steam_pass}} +app_update 294420 validate +quit' -s /bin/bash 7days"
-  when: (steam_code is none)
+- name: Downloading SteamCMD game data
+  shell: "/home/7days/steamcmd/steamcmd.sh +force_install_dir /home/7days/server +login {{steam_user}} +app_update 294420 validate +quit"
+  args:
+    chdir: /home/7days/steamcmd
+    executable: /bin/bash
+  become_user: 7days
   ignore_errors: true
-
-# only download private data when we have entered steam code
-- name: Downloading SteamCMD private game data
-  command: "su -c '/home/7days/steamcmd/steamcmd.sh +force_install_dir /home/7days/server +set_steam_guard_code {{steam_code}} +login {{steam_user}} {{steam_pass}} +app_update 294420 validate +quit' -s /bin/bash 7days"
-  ignore_errors: true
-  when: (steamguard_auth_needed.skipped == True)
-
-- name: Enter Steam code
-  debug: msg="** 1) Check Email and enter steam code in group_vars/all.yml run Ansible again **"
-  when: (steam_code is none)
 
 - name: Restart 7Days service
   command: systemctl restart 7days.service
   ignore_errors: true
-  when: (steamguard_auth_needed.skipped == True)
 
 - name: Enable 7Days service
   service: name=7days state=started enabled=true

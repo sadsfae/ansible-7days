@@ -1,12 +1,9 @@
 ---
-# these are mandatory for steam auth
-steam_user:
+# leave this to anonymous for most games for downloading content
+steam_user: anonymous
 steam_pass:
-# you'll be prompted to fill in this after
-# the first ansible run
-steam_code:
-
-# these are optional
+# these values are optional
+# but you may want to set server_name
 seven_port:
 data_port:
 admin_port:
