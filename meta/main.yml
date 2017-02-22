@@ -1,0 +1,7 @@
+# Ansible galaxy requirements file
+#
+# Role to setup the 7days to die game server
+- src: https://github.com/sadsfae/ansible-7days
+  name: ansible-7days
+  version: master
+
