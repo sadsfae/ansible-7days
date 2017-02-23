@@ -1,7 +1,19 @@
-# Ansible galaxy requirements file
-#
-# Role to setup the 7days to die game server
-- src: https://github.com/sadsfae/ansible-7days
-  name: ansible-7days
-  version: master
+galaxy_info:
+  author: Will Foster (@sadsfae)
+  description: Playbook for deploying the 7days to die game server.
 
+  issue_tracker_url: https://github.com/sadsfae/ansible-7days/issues
+  license: Apache
+  min_ansible_version: 1.9
+  platforms:
+  - name: Fedora
+    versions:
+    - all
+  - name: EL
+    versions:
+    - 7
+  galaxy_tags:
+    - 7days
+    - gameserver
+    - 7 days to die
+dependencies: []
