@@ -4,7 +4,7 @@
 #
 
 - hosts: 7days
-  remote_user: root
+  remote_user: ec2-user
   roles:
-    - { role: 7server }
+    - 7server
 

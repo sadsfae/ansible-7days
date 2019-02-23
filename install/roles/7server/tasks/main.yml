@@ -12,17 +12,27 @@
           shell=/sbin/nologin generate_ssh_key=yes
           ssh_key_bits=2048
           ssh_key_file=.ssh/id_rsa
+  become: true
 
-- authorized_key:
-    user=7days
-    key="{{ lookup('file', '/home/"{{youruser.stdout}}"/.ssh/id_rsa.pub') }}"
-    manage_dir=yes
-  ignore_errors: true
+#- authorized_key:
+#    user: 7days
+#    key: "{{ lookup('file', rsa_pub_key) }}"
+#    manage_dir: yes
+#  ignore_errors: true
+#  vars:
+#    rsa_pub_key: '/home/{{ youruser.stdout }}/.ssh/7d2d.pub'
+
+- name: Bring OS up to date
+  yum:
+    name: "*"
+    state: latest
+
 
 - name: Install dependencies for SteamCMD
-  yum: name={{ item }} state=present
+  yum: name={{ sdtd_packages }} state=present
   become: true
-  with_items:
+  vars:
+    sdtd_packages:
     - glibc.i686
     - mesa-libGLU
     - libXcursor
@@ -30,25 +40,23 @@
     - libstdc++.i686
     - tar
 
-- name: Setup SteamCMD path
+- name: Create directories
   file:
-    path=/home/7days/steamcmd
-    state=directory
-    owner=7days
-    recurse=yes
-    mode=755
-
-- name: Setup 7days server path
-  file:
-    path=/home/7days/server
-    state=directory
-    owner=7days
-    recurse=yes
-    mode=0755
+    path: "{{ item }}"
+    state: directory
+    owner: 7days
+    recurse: yes
+    mode: 0755
+  loop:
+    - "{{ sdtd_saves }}"
+    - "{{sdtd_home}}server"
+    - "{{sdtd_home}}steamcmd"
 
 - name: Download SteamCMD
   get_url:
     url=https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz dest=/home/7days/steamcmd
+  become: true
+  become_user: 7days
 
 - name: Install/update SteamCMD
   unarchive:
@@ -56,36 +64,8 @@
     dest=/home/7days/steamcmd/
     copy=no
     owner=7days
-    mode=0755
-  ignore_errors: true
-
-- name: Assign 7days server port values
-  set_fact:
-    seven_port: 26900
-    data_port: 25000
-    admin_port: 8080
-    when: ((seven_port is none) and (data_port is none) and (admin_port is none))
-
-- name: Configure server name
-  set_fact:
-    server_name: "{{ansible_hostname}} 7Days to Die Server"
-    when: (server_name is none)
-
-- name: Configure server password
-  set_fact:
-    server_pass: changeme
-    when: (server_pass is none)
-
-# deploy 7days to die configs
-- name: Generate 7days server config
-  template:
-    src=serverconfig.xml.j2
-    dest=/home/7days/server/serverconfig.xml
-    owner=7days
-    group=7days
-    mode=0755
-    force=yes
   become: true
+  become_user: 7days
 
 # Setup 7days to die system service
 - name: Install 7days systemd unit file
@@ -107,7 +87,6 @@
     group=7days
     mode=0755
     force=no
-  ignore_errors: true
   become: true
 
 ##### begin firewall settings #####
@@ -278,12 +257,23 @@
     chdir: /home/7days/steamcmd
     executable: /bin/bash
   become_user: 7days
-  ignore_errors: true
 
-- name: Restart 7Days service
-  command: systemctl restart 7days.service
-  ignore_errors: true
+- name: Generate 7days server config
+  template:
+    src=serverconfig.xml.j2
+    dest=/home/7days/server/serverconfig.xml
+    owner=7days
+    group=7days
+    mode=0600
+    force=yes
+  become: true
+
+- name: Copy saved game to server
+  unarchive:
+    copy: true
+    src: "{{ upload_local_save }}"
+    dest: "{{ sdtd_saves }}"
+  when: upload_local_save is defined
 
 - name: Enable 7Days service
-  service: name=7days state=started enabled=true
-  ignore_errors: true
+  service: name=7days state=restarted enabled=true
