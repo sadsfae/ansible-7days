@@ -1,0 +1,27 @@
+sdtd_home: "/home/7days/"
+sdtd_saves: "{{sdtd_home}}saves/"
+
+seven_port: 26900
+data_port: 25000
+admin_port: 8080
+server_is_public: "false"
+server_name: "7 Days to Die"
+
+game_world: "Navezgane"
+game_name: "{{ game_world }} on {{ server_name }}"
+
+max_players: 4
+server_website: ""
+game_difficulty: 2
+
+day_night_length: 60
+daylight_length: 16
+
+blood_moon_enemy_count: 16
+
+control_panel_enabled: false
+telnet_enabled: false
+
+# leave this to anonymous for most games for downloading content
+steam_user: anonymous
+steam_pass:

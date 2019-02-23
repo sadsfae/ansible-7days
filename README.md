@@ -1,5 +1,11 @@
 ansible-7days
 =============
+
+# Run with
+```bash
+ansible-playbook -i hosts install/7days.yml --key-file ~/.ssh/7d2d-adk.pem -e sdtd_saved_games='/mnt/o/7d2d/7d2d-Whatever.tgz'
+```
+
 Install and configure 7 Days to Die gameserver with Ansible
 
 ![7Days](/image/7days_icon.png?raw=true "This is a really fun game")

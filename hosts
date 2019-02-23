@@ -1,2 +1,15 @@
 [7days]
-host-01
+your.server.fqdn or ip
+
+[7days:vars]
+ansible_become=true
+
+server_name=
+server_description=
+server_pass=
+admin_password=
+
+game_name="Whatever"
+
+game_difficulty=5
+blood_moon_enemy_count=64
