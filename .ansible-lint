@@ -1,0 +1,6 @@
+---
+# Playbook repo; roles are used internally rather than published to Galaxy, so
+# the role-name variable prefix rule is intentionally disabled. Variables are
+# namespaced with sdtd_/server_ prefixes instead.
+skip_list:
+  - var-naming[no-role-prefix]

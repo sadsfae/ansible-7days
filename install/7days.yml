@@ -1,10 +1,9 @@
 ---
-#
-# Ansible playbook to install 7daystodie
-#
+# Ansible playbook to install and configure a 7 Days to Die dedicated server.
 
-- hosts: 7days
-  remote_user: root
+- name: Install 7 Days to Die server
+  hosts: seven_days
+  become: true
+  gather_facts: true
   roles:
-    - { role: 7server }
-
+    - seven_server

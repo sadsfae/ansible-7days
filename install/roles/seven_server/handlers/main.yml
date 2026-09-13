@@ -1,0 +1,6 @@
+---
+- name: Restart 7days service
+  ansible.builtin.systemd:
+    name: 7days.service
+    state: restarted
+    daemon_reload: true

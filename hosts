@@ -1,2 +1,7 @@
-[7days]
-host-01
+[seven_days]
+# Replace with your 7 Days to Die server host.
+game-server.example.com
+
+[seven_days:vars]
+ansible_user=root
+ansible_become=yes
