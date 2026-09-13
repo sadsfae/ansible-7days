@@ -1,7 +1,7 @@
 ---
 # Deployment-level overrides for the 7 Days to Die server.
 # These take precedence over the role defaults in
-# install/roles/7server/defaults/main.yml.
+# install/roles/seven_server/defaults/main.yml.
 #
 # Set steam_user/steam_pass to a non-anonymous Steam account if the game
 # content requires it. Leave anonymous for public servers.

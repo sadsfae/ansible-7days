@@ -45,7 +45,7 @@ cd ansible-7days
    `server_pass` (and `control_panel_password`).
 
 3. Optionally edit role defaults in
-   `install/roles/7server/defaults/main.yml` (ports, world, difficulty, etc.).
+   `install/roles/seven_server/defaults/main.yml` (ports, world, difficulty, etc.).
 
 4. Run the playbook:
 
