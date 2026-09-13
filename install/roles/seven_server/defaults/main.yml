@@ -1,5 +1,5 @@
 ---
-# Defaults for the 7server role. Override in install/group_vars/all.yml or on
+# Defaults for the seven_server role. Override in install/group_vars/all.yml or on
 # the command line (e.g. -e seven_port=26901).
 
 # Paths
