@@ -1,18 +1,21 @@
 galaxy_info:
   author: Will Foster (@sadsfae)
-  description: Playbook for deploying the 7days to die game server.
-
+  role_name: seven_server
+  namespace: sadsfae
+  description: Deploy and configure a 7 Days to Die dedicated game server with Ansible.
   issue_tracker_url: https://github.com/sadsfae/ansible-7days/issues
-  license: Apache
-  min_ansible_version: 1.9
+  license: Apache-2.0
+  min_ansible_version: "2.9"
   platforms:
-  - name: Fedora
-    versions:
-    - all
-  - name: EL
-    versions:
-    - 7
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Fedora
+      versions:
+        - all
   galaxy_tags:
     - 7days
     - gameserver
+    - steamcmd
 dependencies: []

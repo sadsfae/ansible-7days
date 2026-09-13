@@ -1,0 +1,115 @@
+---
+# Tasks to install and run a 7 Days to Die dedicated server.
+
+- name: Set up dedicated service user
+  ansible.builtin.user:
+    name: 7days
+    create_home: true
+    shell: /sbin/nologin
+    generate_ssh_key: true
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+
+- name: Install OpenSSH public key for the service user
+  ansible.posix.authorized_key:
+    user: 7days
+    key: "{{ lookup('ansible.builtin.file', sdtd_ssh_pub_key) }}"
+  when: sdtd_ssh_pub_key | length > 0
+
+- name: Install game server dependencies
+  ansible.builtin.package:
+    name: "{{ sdtd_packages }}"
+    state: present
+
+- name: Create server directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: 7days
+    mode: "0755"
+  loop:
+    - "{{ sdtd_server_dir }}"
+    - "{{ sdtd_steamcmd_dir }}"
+    - "{{ sdtd_saves }}"
+
+- name: Download SteamCMD
+  ansible.builtin.get_url:
+    url: https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
+    dest: "{{ sdtd_steamcmd_dir }}/steamcmd_linux.tar.gz"
+    mode: "0755"
+
+- name: Extract SteamCMD
+  ansible.builtin.unarchive:
+    src: "{{ sdtd_steamcmd_dir }}/steamcmd_linux.tar.gz"
+    dest: "{{ sdtd_steamcmd_dir }}/"
+    remote_src: true
+    owner: 7days
+    mode: "0755"
+
+- name: Render server configuration
+  ansible.builtin.template:
+    src: serverconfig.xml.j2
+    dest: "{{ sdtd_server_dir }}/serverconfig.xml"
+    owner: 7days
+    group: 7days
+    mode: "0644"
+  notify: restart 7days service
+
+- name: Install systemd unit
+  ansible.builtin.copy:
+    src: 7days.service
+    dest: /etc/systemd/system/7days.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart 7days service
+
+- name: Install startup script
+  ansible.builtin.copy:
+    src: startserver.sh
+    dest: "{{ sdtd_server_dir }}/startserver.sh"
+    owner: 7days
+    group: 7days
+    mode: "0755"
+
+- name: Open game ports with firewalld
+  ansible.posix.firewalld:
+    port: "{{ item.port }}/{{ item.proto }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ sdtd_ports }}"
+  when: sdtd_firewall == 'firewalld'
+
+- name: Open game ports with iptables
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: "{{ item.proto }}"
+    destination_port: "{{ item.port }}"
+    jump: ACCEPT
+  loop: "{{ sdtd_ports }}"
+  when: sdtd_firewall == 'iptables'
+
+- name: Download game content via SteamCMD
+  ansible.builtin.command:
+    cmd: "{{ sdtd_steamcmd_dir }}/steamcmd.sh +force_install_dir {{ sdtd_server_dir }} +login {{ steam_login_line }} +app_update 294420 validate +quit"
+    chdir: "{{ sdtd_steamcmd_dir }}"
+  become: true
+  become_user: 7days
+  changed_when: true
+
+- name: Restore saved game if provided
+  ansible.builtin.unarchive:
+    src: "{{ upload_local_save }}"
+    dest: "{{ sdtd_saves }}"
+    owner: 7days
+    group: 7days
+  become: true
+  when: upload_local_save is defined
+
+- name: Enable and start the 7 Days to Die service
+  ansible.builtin.systemd:
+    name: 7days.service
+    state: started
+    enabled: true
+    daemon_reload: true

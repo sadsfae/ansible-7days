@@ -1,66 +1,111 @@
 ansible-7days
 =============
-Install and configure 7 Days to Die gameserver with Ansible
+
+Install and configure a [7 Days to Die](https://7daystodie.com) dedicated game
+server with Ansible.
 
 ![7Days](/image/7days_icon.png?raw=true "This is a really fun game")
 
-**What does it do?**
-   - Automate deployment of 7 Days to Die Server
-     * Downloads and sets up SteamCMD
-     * Drops in templated server configs, startup script
-     * Installs 7 Days to Die Systemd services for management
+## What it does
 
-**Requirements**
-   - RHEL7 or CentOS7+ server/client with no modifications
-     - Fedora 23 or higher needs to have ```yum python2 python2-dnf libselinux-python``` packages.
-     * You can run this against Fedora clients prior to running Ansible:
-     - ```ansible all -u root -m shell -i hosts -a "dnf install yum python2 libsemanage-python python2-dnf -y"```
-   - Deployment tested on Ansible 1.9.4 and 2.0.2
+- Creates a dedicated `7days` service user.
+- Installs the OS dependencies SteamCMD needs.
+- Downloads and sets up SteamCMD.
+- Downloads the 7 Days to Die server content via SteamCMD.
+- Renders a templated `serverconfig.xml`.
+- Installs a systemd unit and startup script.
+- Optionally restores a saved game from a local archive.
+- Optionally opens the game ports with firewalld or iptables.
 
-**7 Days Server Instructions**
-   - Clone repo and setup your hosts file
+## Requirements
+
+- Ansible core 2.9 or newer.
+- The `ansible.posix` collection (install it first):
+
+```bash
+ansible-galaxy collection install -r requirements.yml
 ```
+
+- Any modern Linux host you can reach over SSH. Ansible's `package` module picks
+  the package manager automatically (yum, dnf, or apt), so the distribution does
+  not matter. The 32-bit library names in `sdtd_packages` are the EL/Fedora ones;
+  on a Debian/Ubuntu host, adjust them to that distro's 32-bit packages.
+
+## Usage
+
+1. Clone the repo and set your server host in `hosts`:
+
+```bash
 git clone https://github.com/sadsfae/ansible-7days
 cd ansible-7days
-sed -i 's/host-01/7daystodieserver/' hosts
+# edit hosts, set the 7days.example.com line to your server
 ```
-   - Optionally edit server name, port or other variables here:
-```
-vi install/group_vars/all.yml
-```
-   - Run the playbook
-```
-ansible-playbook -i hosts install/7days.xml
-```
-   * On subsequent runs Ansible will simply update SteamCMD, 7days assets and
-     restart the 7days systemd service.
 
-**To Do**
-   - Add optional ability to import saved games
-   - Flesh out firewall rules more to include ranges
-   - Expand server config variables
+2. Review the deployment variables in `install/group_vars/all.yml` and set a real
+   `server_pass` (and `control_panel_password`).
 
-**File Hierarchy**
+3. Optionally edit role defaults in
+   `install/roles/7server/defaults/main.yml` (ports, world, difficulty, etc.).
+
+4. Run the playbook:
+
+```bash
+ansible-playbook -i hosts install/7days.yml
+```
+
+To restore a saved game archive (e.g. a `7d2d.tgz`) into the server's save folder,
+point `upload_local_save` at it:
+
+```bash
+ansible-playbook -i hosts install/7days.yml -e upload_local_save=/path/to/7d2d.tgz
+```
+
+On subsequent runs Ansible only updates SteamCMD, the game content and the
+service as needed.
+
+## Firewall
+
+By default the playbook does **not** touch the firewall (`sdtd_firewall: none`).
+After a successful first deploy, open the game ports explicitly by setting in
+`install/group_vars/all.yml`:
+
+```yaml
+sdtd_firewall: firewalld   # or "iptables"
+```
+
+The ports opened are `seven_port` (udp), `data_port` (udp) and `admin_port`
+(tcp).
+
+## File hierarchy
+
 ```
 ├── hosts
+├── requirements.yml
 └── install
     ├── 7days.yml
     ├── group_vars
-    │   └── all.yml
+    │   └── all.yml
     └── roles
-        └── 7server
+        └── seven_server
+            ├── defaults
+            │   └── main.yml
             ├── files
-            │   ├── 7days.service
-            │   └── startserver.sh
+            │   ├── 7days.service
+            │   └── startserver.sh
+            ├── handlers
+            │   └── main.yml
             ├── tasks
-            │   └── main.yml
+            │   └── main.yml
             └── templates
                 └── serverconfig.xml.j2
 ```
 
-**7 Days to Die Live Trailer**
+## Credits
 
+The saved-game import and the configurable game tunables were contributed by
+[aknauf](https://github.com/aknauf) in
+[#1](https://github.com/sadsfae/ansible-7days/pull/1).
 
-[![Ansible Elk](http://img.youtube.com/vi/tnKLwfAgZjI/0.jpg)](http://www.youtube.com/watch?v=tnKLwfAgZjI "7 Days to Die Live Trailer")
+## License
 
-
+Apache-2.0

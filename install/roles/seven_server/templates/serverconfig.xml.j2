@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<ServerSettings>
+    <!-- Core server settings -->
+    <property name="ServerPort"         value="{{ seven_port }}"/>
+    <property name="ServerIsPublic"     value="{{ server_is_public }}"/>
+    <property name="ServerName"         value="{{ server_name }}"/>
+    <property name="ServerPassword"     value="{{ server_pass }}"/>
+    <property name="ServerMaxPlayerCount" value="{{ max_players }}"/>
+    <property name="ServerDescription"  value="{{ server_description }}"/>
+    <property name="ServerWebsiteURL"   value="{{ server_website_url }}"/>
+
+    <!-- World -->
+    <property name="GameWorld"          value="{{ game_world }}"/>
+    <property name="GameName"           value="{{ game_name }}"/>
+    <property name="GameDifficulty"     value="{{ game_difficulty }}"/>
+    <property name="GameMode"           value="GameModeSurvivalMP"/>
+    <property name="BloodMoonEnemyCount" value="{{ blood_moon_enemy_count }}"/>
+
+    <!-- Time -->
+    <property name="DayNightLength"     value="{{ day_night_length }}"/>
+    <property name="DayLightLength"     value="{{ day_light_length }}"/>
+
+    <!-- Control panel -->
+    <property name="ControlPanelEnabled" value="{{ control_panel_enabled }}"/>
+    <property name="ControlPanelPort"    value="{{ admin_port }}"/>
+    <property name="ControlPanelPassword" value="{{ control_panel_password }}"/>
+
+    <!-- Telnet -->
+    <property name="TelnetEnabled"      value="{{ telnet_enabled }}"/>
+    <property name="TelnetPort"         value="{{ telnet_port }}"/>
+    <property name="TelnetPassword"     value="{{ telnet_password }}"/>
+
+    <!-- Gameplay defaults (edit these directly if you want more fine tuning) -->
+    <property name="ZombiesRun"         value="0"/>
+    <property name="BuildCreate"        value="false"/>
+    <property name="FriendlyFire"       value="true"/>
+    <property name="PersistentPlayerProfiles" value="false"/>
+    <property name="PlayerSafeZoneLevel" value="5"/>
+    <property name="PlayerSafeZoneHours" value="5"/>
+    <property name="DropOnDeath"        value="0"/>
+    <property name="DropOnQuit"         value="0"/>
+    <property name="EnemySenseMemory"   value="60"/>
+    <property name="EnemySpawnMode"     value="5"/>
+    <property name="EnemyDifficulty"    value="1"/>
+    <property name="BlockDurabilityModifier" value="100"/>
+    <property name="LootAbundance"      value="100"/>
+    <property name="LootRespawnDays"    value="30"/>
+    <property name="LandClaimSize"      value="7"/>
+    <property name="LandClaimDeadZone"  value="30"/>
+    <property name="LandClaimExpiryTime" value="3"/>
+    <property name="LandClaimDecayMode" value="0"/>
+    <property name="LandClaimOnlineDurabilityModifier" value="4"/>
+    <property name="LandClaimOfflineDurabilityModifier" value="4"/>
+    <property name="AirDropFrequency"   value="72"/>
+    <property name="AirDropMarker"      value="false"/>
+    <property name="MaxSpawnedZombies"  value="60"/>
+    <property name="MaxSpawnedAnimals"  value="50"/>
+    <property name="EACEnabled"         value="true"/>
+</ServerSettings>

@@ -1,10 +1,18 @@
 ---
-# leave this to anonymous for most games for downloading content
+# Deployment-level overrides for the 7 Days to Die server.
+# These take precedence over the role defaults in
+# install/roles/7server/defaults/main.yml.
+#
+# Set steam_user/steam_pass to a non-anonymous Steam account if the game
+# content requires it. Leave anonymous for public servers.
+
 steam_user: anonymous
-steam_pass:
-# these values are optional
-# but you may want to set server_name
-seven_port:
-data_port:
-admin_port:
-server_name:
+steam_pass: ""
+
+server_name: "7 Days to Die Server"
+server_description: "A 7 Days to Die server"
+server_website_url: "https://example.com"
+
+# Change these before first deploy.
+server_pass: "CHANGEME"
+control_panel_password: "CHANGEME"

@@ -1,0 +1,63 @@
+---
+# Defaults for the 7server role. Override in install/group_vars/all.yml or on
+# the command line (e.g. -e seven_port=26901).
+
+# Paths
+sdtd_home: /home/7days
+sdtd_server_dir: "{{ sdtd_home }}/server"
+sdtd_steamcmd_dir: "{{ sdtd_home }}/steamcmd"
+sdtd_saves: "{{ sdtd_home }}/saves"
+
+# Service ports
+seven_port: 26900
+data_port: 25000
+admin_port: 8080
+
+# Steam download (anonymous for public servers)
+steam_user: anonymous
+steam_pass: ""
+steam_login_line: "{{ steam_user }}{{ ' ' ~ steam_pass if steam_pass else '' }}"
+
+# Server identity
+server_name: "7 Days to Die Server"
+server_description: "A 7 Days to Die server"
+server_website_url: "https://example.com"
+server_is_public: "true"
+max_players: 8
+
+# Game settings
+game_world: Navezgane
+game_name: "AnsibleDeployedNavezgane"
+game_difficulty: 2
+day_night_length: 80
+day_light_length: 18
+blood_moon_enemy_count: 64
+
+# Admin web/telnet
+control_panel_enabled: "true"
+control_panel_password: "CHANGEME"
+telnet_enabled: "true"
+telnet_port: 8081
+telnet_password: ""
+
+# OS packages the server needs
+sdtd_packages:
+  - glibc.i686
+  - mesa-libGLU
+  - libXcursor
+  - libXrandr
+  - libstdc++.i686
+  - tar
+
+# Optional path to an OpenSSH public key to install for the 7days user.
+# Leave empty to skip.
+sdtd_ssh_pub_key: ""
+
+# Firewall handling: none (default, do not touch), firewalld, or iptables.
+# ponytail: default none to avoid opening ports unexpectedly. Enable
+# deliberately after first successful deploy.
+sdtd_firewall: none
+sdtd_ports:
+  - { port: "{{ seven_port }}", proto: udp }
+  - { port: "{{ data_port }}", proto: udp }
+  - { port: "{{ admin_port }}", proto: tcp }
